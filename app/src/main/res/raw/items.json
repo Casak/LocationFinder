@@ -1,0 +1,44 @@
+{
+  "Items":{
+    "Item": [
+      {
+      "id": "416fa449-44de-49a6-9c1d-20ce49d5e200",
+      "description": "Main activity list item 1",
+      "isChecked": "1",
+      "lon":"-122.0840",
+      "lat":"37.4220",
+      "rad":"20"
+    }, {
+      "id": "426fa449-44de-49a6-9c1d-20ce49d5e200",
+      "description": "Main activity list item 2",
+      "isChecked": "0",
+      "lon":"-121.0840",
+      "lat":"37.4220",
+      "rad":"20"
+      },
+      {
+        "id": "416fa449-44de-49a6-9c1d-20ce49d5e200",
+        "description": "Main activity list item 3",
+        "isChecked": "0",
+        "lon":"-120.0840",
+        "lat":"37.4220",
+        "rad":"20"
+      },
+      {
+        "id": "416fa449-44de-49a6-9c1d-20ce49d5e200",
+        "description": "Main activity list item 4",
+        "isChecked": "1",
+        "lon":"-119.0840",
+        "lat":"37.4220",
+        "rad":"20"
+      }, {
+        "id": "426fa449-44de-49a6-9c1d-20ce49d5e200",
+        "description": "Main activity list item 5",
+        "isChecked": "0",
+        "lon":"-118.0840",
+        "lat":"37.4220",
+        "rad":"20"
+      }
+    ]
+  }
+}
