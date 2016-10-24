@@ -10,8 +10,6 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.noname.freelancerproject.MainActivity;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,7 +38,7 @@ public class MyService extends Service {
         super.onCreate();
         ctx = this;
 
-        timer.scheduleAtFixedRate(new mainTask(), 0, 20000);
+        timer.scheduleAtFixedRate(new mainTask(), 5000, 20000);
 
 
         Toast.makeText(this, "MyService Created", Toast.LENGTH_LONG).show();
@@ -52,7 +50,7 @@ public class MyService extends Service {
         public void run()
         {
             Message msgToActivity = new Message();
-            msgToActivity.what = 0;
+            msgToActivity.what = 1;
             msgToActivity.obj  = "TimerTask Trigger";
 
             MainActivity.mUiHandler.sendMessage(msgToActivity);

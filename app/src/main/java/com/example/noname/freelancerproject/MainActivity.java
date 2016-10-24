@@ -33,16 +33,20 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks, LocationListener {
@@ -77,27 +81,51 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
 
         // Create service incoming handler
-        mUiHandler = new Handler() // Receive messages from service class
-        {
-
-
+        mUiHandler = new Handler() {
             public void handleMessage(Message msg) {
                 try {
                     switch (msg.what) {
                         case 0:
                             // add the status which came from service and show on GUI
                             Toast.makeText(MainActivity.this, msg.obj.toString(), Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(ctx, DetailActivity.class);
+/*                            Intent intent = new Intent(ctx, DetailActivity.class);
                             JSONObject jsonObjDetail = jArray.getJSONObject(0);
                             intent.putExtra("clickedItem", jsonObjDetail.toString());
-                            ctx.startActivity(intent);
+                            ctx.startActivity(intent);*/
                             break;
+                        case 1:
+                            if (jArray != null && mCurrentLocation != null) {
+                                for (int i = 0; i < jArray.length(); i++) {
+                                    JSONObject object = jArray.getJSONObject(i);
+                                    if (object != null && object.getInt("isChecked") == 0) {
+                                        double latitude = object.getDouble("lat");
+                                        double longitude = object.getDouble("lon");
+                                        int radius = object.getInt("rad");
+                                        if (Utils.isInRadius(latitude,
+                                                longitude,
+                                                mCurrentLocation.getLatitude(),
+                                                mCurrentLocation.getLongitude(),
+                                                radius)) {
+                                            object.put("isChecked", 1);
+                                            jArray.put(i, object);
+                                            jsonObj.getJSONObject("Items").put("Item", jArray);
 
+                                            FileOutputStream fos = openFileOutput("items.json", Context.MODE_PRIVATE);
+                                            fos.write(jsonObj.toString().getBytes());
+                                            fos.close();
+
+                                            Intent intent = new Intent(ctx, DetailActivity.class);
+                                            intent.putExtra("clickedItem", object.toString());
+                                            ctx.startActivity(intent);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
                         default:
                             break;
                     }
-
-                } catch (Exception e) {
+                } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -111,8 +139,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         try {
             //Get Data From internal file, if doesn't exist copy resource to internal and then use it .
-
-            if (!pref.contains("json")) {
+            FileInputStream fis = null;
+            try {
+                fis = openFileInput("items.json");
+            } catch (FileNotFoundException e){
+                e.printStackTrace();
+            }
+            if(fis != null){
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fis));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    sb.append(line);
+                }
+                fis.close();
+                jsonObj = new JSONObject(sb.toString());
+            } else if (!pref.contains("json")) {
                 jsonObj = openJsonFile("items.json");
             } else {
                 jsonObj = new JSONObject(pref.getString("json", null));
@@ -246,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         final LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
